@@ -1,8 +1,6 @@
 import logging
 import time
 
-from rest_framework.utils.serializer_helpers import ReturnDict
-
 logger = logging.getLogger(__name__)
 
 
@@ -29,7 +27,7 @@ class RequestLoggingMiddleware:
         if 400 <= response.status_code < 500:
             log_entry_dict["error.kind"] = response.status_code
             log_entry_dict["error.message"] = response.reason_phrase
-            if hasattr(response, "data") and isinstance(response.data, (list, dict, ReturnDict)):
+            if hasattr(response, "data") and isinstance(response.data, (list, dict)):
                 log_entry_dict["error.stack"] = response.data
             logger.warning(
                 f"HTTP {response.status_code} {response.reason_phrase}",

@@ -14,7 +14,6 @@ from django.conf import settings
 from django.core.exceptions import DisallowedHost
 from django.http.request import split_domain_port, HttpRequest
 from django.urls import resolve, NoReverseMatch, Resolver404
-from rest_framework.compat import unicode_http_header
 
 import django_datadog_logger.celery
 import django_datadog_logger.wsgi
@@ -37,6 +36,13 @@ EXCLUDE_FROM_EXTRA_ATTRS = {
     "params",
     "sql",
 }
+
+
+def unicode_http_header(value):
+    # Coerce HTTP header value to unicode.
+    if isinstance(value, bytes):
+        return value.decode('iso-8859-1')
+    return value
 
 
 def get_client_ip(request):
