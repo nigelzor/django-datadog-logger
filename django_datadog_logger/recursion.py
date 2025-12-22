@@ -1,5 +1,5 @@
-import inspect
 from functools import wraps
+import threading
 
 
 class RecursionDetected(RuntimeError):
@@ -10,13 +10,17 @@ def not_recursive(f):
     """
     raise an exception if recursive
     """
+    local_storage = threading.local()
 
     @wraps(f)
     def wrapper(*args, **kwargs):
-        for frame in inspect.stack():
-            if f.__name__ == frame.function:
-                raise RecursionDetected(f"function '{f.__name__}' is recursive")
+        if getattr(local_storage, "running", False):
+            raise RecursionDetected(f"function '{f.__name__}' is recursive")
 
-        return f(*args, **kwargs)
+        local_storage.running = True
+        try:
+            return f(*args, **kwargs)
+        finally:
+            local_storage.running = False
 
     return wrapper
